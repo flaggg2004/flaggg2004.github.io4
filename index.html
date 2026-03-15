@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎵 回响 · 流行乐+电台+听众互动</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(145deg, #f9f2e7 0%, #fde9e0 100%);
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+            padding: 2rem 1.5rem;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #2e2a28;
+            transition: background 0.3s;
+        }
+
+        body.dark {
+            background: #1f1b18;
+            color: #eee6dd;
+        }
+        body.dark .music-table-container,
+        body.dark .detail-panel,
+        body.dark .feature-card,
+        body.dark .radio-studio,
+        body.dark .comment-box,
+        body.dark .pop-chart {
+            background: #2f2823d9;
+            backdrop-filter: blur(6px);
+            border-color: #7a5a4b;
+        }
+        body.dark td {
+            background: #3b312bd9;
+        }
+
+        .main-wrapper {
+            max-width: 1400px;
+            width: 100%;
+        }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 2rem;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 500;
+            background: linear-gradient(135deg, #3f2b1c, #7f5a4b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .toolbar {
+            display: flex;
+            gap: 1rem;
+        }
+        .mode-btn, .random-btn {
+            background: #ebd5c6;
+            border: none;
+            padding: 0.6rem 1.6rem;
+            border-radius: 40px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #402e24;
+            cursor: pointer;
+            box-shadow: 0 4px 8px #dbb7a4;
+            transition: 0.2s;
+        }
+        .mode-btn:hover, .random-btn:hover {
+            background: #ddbca8;
+            transform: scale(0.97);
+        }
+
+        /* 表格区 (6张专辑+新增流行乐手) 但表格保留原样，增加流行标签 */
+        .music-table-container {
+            background: rgba(255, 245, 235, 0.7);
+            backdrop-filter: blur(4px);
+            border-radius: 48px 48px 32px 32px;
+            padding: 2rem 1.8rem;
+            box-shadow: 0 20px 40px -12px rgba(92, 60, 40, 0.3);
+            margin-bottom: 2.5rem;
+            border: 1px solid #f3ddd2;
+        }
+        table { width: 100%; border-collapse: separate; border-spacing: 0 12px; font-size: 1.1rem; }
+        th { text-align: left; padding: 1rem 1.2rem 0.8rem 1.2rem; color: #a65d47; font-size: 1.3rem; border-bottom: 2px solid #e5c7b9; }
+        td {
+            background: #ffffffc2; backdrop-filter: blur(2px); padding: 1.2rem;
+            border-radius: 40px 16px 16px 40px; box-shadow: 0 6px 12px rgba(160,100,70,0.1);
+            border-left: 6px solid #cfaa9a; vertical-align: middle;
+        }
+        .track-link { font-weight: 600; color: #7b3f2b; text-decoration: none; border-bottom: 2px dotted #b48772; cursor: pointer; }
+        .track-link:hover { color: #b15e3a; border-bottom: 2px solid #b15e3a; }
+        .badge { background: #dbb9a8; padding: 0.25rem 1rem; border-radius: 30px; font-size: 0.9rem; }
+
+        /* 新布局：流行乐特别榜单 + 电台直播间 + 互动区 */
+        .pop-radio-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.8rem;
+            margin: 2rem 0;
+        }
+        .pop-chart {
+            flex: 2 1 400px;
+            background: #fcf0e7dd;
+            backdrop-filter: blur(3px);
+            border-radius: 48px;
+            padding: 2rem 1.8rem;
+            border: 1px solid #efcdba;
+            box-shadow: 0 10px 22px #d0b09b70;
+        }
+        .pop-chart h2 {
+            font-size: 2.2rem; font-weight: 350; border-left: 10px solid #d47b5c; padding-left: 1.2rem; margin-bottom: 1.5rem;
+        }
+        .pop-list {
+            display: flex; flex-direction: column; gap: 1rem;
+        }
+        .pop-item {
+            background: #edd9cb; border-radius: 40px; padding: 0.8rem 1.6rem;
+            display: flex; align-items: center; gap: 1rem; font-size: 1.2rem;
+            transition: 0.2s; cursor: pointer;
+        }
+        .pop-item:hover { background: #e2c3b2; transform: translateX(8px); }
+        .pop-rank { font-weight: 700; color: #b4512e; min-width: 2.5rem; }
+        .pop-title { font-weight: 600; }
+        .pop-artist { color: #6d4e3f; margin-left: auto; }
+
+        /* 电台直播区 */
+        .radio-studio {
+            flex: 1 1 320px;
+            background: #f2e0d3dd;
+            border-radius: 48px;
+            padding: 2rem 1.8rem;
+            border: 1px solid #debca9;
+            box-shadow: 0 10px 22px #c7a28b;
+        }
+        .radio-studio h2 { font-size: 2rem; font-weight: 350; margin-bottom: 1rem; }
+        .live-indicator {
+            display: flex; align-items: center; gap: 0.8rem; margin-bottom: 1.8rem;
+            background: #cfa58d; padding: 0.5rem 1.5rem; border-radius: 60px; width: fit-content;
+        }
+        .live-dot {
+            width: 18px; height: 18px; background: #e32e2e; border-radius: 50%; animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } }
+        .radio-display {
+            background: #e6cfbf; border-radius: 36px; padding: 1.5rem; margin: 1.5rem 0;
+            font-size: 1.1rem; min-height: 110px;
+        }
+        .radio-controls {
+            display: flex; gap: 1rem; flex-wrap: wrap;
+        }
+        .freq-btn {
+            background: #b98d78; border: 0; padding: 0.7rem 1.4rem; border-radius: 40px;
+            font-weight: 600; color: #2f1e16; cursor: pointer; flex: 1 0 auto;
+        }
+        .call-btn {
+            background: #aa6e53; border: 0; padding: 0.7rem; border-radius: 40px; color: white;
+            font-weight: 600; cursor: pointer; width: 100%; margin-top: 0.8rem;
+        }
+
+        /* 听众互动区域 (评论区 + 点赞) */
+        .interaction-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.8rem;
+            margin: 2rem 0 2.5rem;
+        }
+        .comment-box {
+            flex: 2 1 450px;
+            background: #f8eadfdd;
+            border-radius: 48px;
+            padding: 2rem 2rem;
+            border: 1px solid #eacdbd;
+        }
+        .comment-box h3 { font-size: 1.8rem; margin-bottom: 1.2rem; border-left: 8px solid #c57b5e; padding-left: 1rem; }
+        .comment-list {
+            background: #edd9cb; border-radius: 40px; padding: 1.5rem; max-height: 200px; overflow-y: auto;
+            margin-bottom: 1.2rem;
+        }
+        .comment-item {
+            padding: 0.5rem; border-bottom: 1px dashed #aa7d68; display: flex; gap: 0.5rem;
+        }
+        .comment-input-area {
+            display: flex; gap: 0.5rem; flex-wrap: wrap;
+        }
+        #commentInput {
+            flex: 3 1 200px; padding: 0.8rem 1.5rem; border-radius: 60px; border: 1px solid #b58771;
+            background: #fcf3ec; font-size: 1rem;
+        }
+        #sendComment {
+            flex: 1 0 80px; background: #b57b62; border: 0; border-radius: 60px; color: white;
+            font-weight: 600; cursor: pointer;
+        }
+        .like-area {
+            flex: 1 1 200px;
+            background: #f2ddcfdd;
+            border-radius: 48px;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+        .like-btn {
+            background: #d6a48b; border: 0; font-size: 2.5rem; padding: 0.5rem 2rem;
+            border-radius: 80px; cursor: pointer; transition: 0.2s;
+        }
+        .like-btn:hover { background: #c48468; transform: scale(1.05); }
+        .like-count { font-size: 2rem; font-weight: 600; }
+
+        /* 详情卡片区 */
+        .detail-panel {
+            background: #f6e8df; border-radius: 60px 60px 40px 40px; padding: 2.5rem 2rem;
+            margin: 1rem 0 2rem; border: 1px solid #ebd5c6;
+        }
+        .detail-grid { display: flex; flex-wrap: wrap; gap: 2rem; align-items: center; }
+        .detail-image { flex: 1 1 280px; max-width: 360px; border-radius: 48px; overflow: hidden; }
+        .detail-image img { width: 100%; border-radius: 40px; }
+        .detail-text { flex: 2 1 340px; background: #fffaf5d9; padding: 2rem; border-radius: 48px; }
+
+        /* 邮箱 */
+        .email-footer {
+            margin-top: 2.5rem; border-top: 2px solid #deb9a6; padding-top: 2rem;
+            display: flex; justify-content: space-between; flex-wrap: wrap;
+        }
+        .email-address {
+            font-size: 1.6rem; background: #ffffffb3; padding: 0.4rem 1.8rem;
+            border-radius: 60px; border: 1px solid #b48b78;
+        }
+        .email-address::before { content: "✉️ "; font-size: 1.8rem; }
+    </style>
+</head>
+<body>
+<div class="main-wrapper">
+    <!-- 头部工具栏 -->
+    <div class="hero">
+        <h1>♫ 流行波 · 听众互动电台</h1>
+        <div class="toolbar">
+            <button class="mode-btn" id="darkModeToggle">🌙 深色模式</button>
+            <button class="random-btn" id="randomAlbumBtn">🎲 随机专辑</button>
+        </div>
+    </div>
+
+    <!-- 原始表格区 (已包含六张风格专辑) -->
+    <div class="music-table-container">
+        <table>
+            <thead><tr><th>专辑/曲目</th><th>音乐人</th><th>年份</th><th>风格</th><th style="text-align: center;">⚬ 详情 ⚬</th></tr></thead>
+            <tbody>
+                <tr><td><a href="#" class="track-link" data-target="modal1">🎸 峭壁之光</a></td><td>The Echoes</td><td>2021</td><td><span class="badge">迷幻民谣</span></td><td style="text-align: center;">🔗⛰️</td></tr>
+                <tr><td><a href="#" class="track-link" data-target="modal2">🌊 鲸语夜航</a></td><td>Deep Sommer</td><td>2019</td><td>氛围电子</td><td style="text-align: center;">🔗🐋</td></tr>
+                <tr><td><a href="#" class="track-link" data-target="modal3">🎻 钢琴独白1988</a></td><td>Murray 张</td><td>1988</td><td>古典/新世纪</td><td style="text-align: center;">🔗🎹</td></tr>
+                <tr><td><a href="#" class="track-link" data-target="modal4">📀 合成器浪潮</a></td><td>Neon Arcade</td><td>2023</td><td>合成波</td><td style="text-align: center;">🔗🌊</td></tr>
+                <tr><td><a href="#" class="track-link" data-target="modal5">🥁 东西亚节奏</a></td><td>Rara漂流</td><td>2015</td><td>世界音乐</td><td style="text-align: center;">🔗🌏</td></tr>
+                <tr><td><a href="#" class="track-link" data-target="modal6">🎤 爵士单身夜</a></td><td>Ella 棕榈</td><td>2020</td><td>人声爵士</td><td style="text-align: center;">🔗🥃</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 新增：流行乐榜单 + 电台直播间 (流行+电台功能) -->
+    <div class="pop-radio-row">
+        <!-- 流行乐周榜 -->
+        <div class="pop-chart">
+            <h2>🔥 流行乐周榜</h2>
+            <div class="pop-list">
+                <div class="pop-item" data-target="pop1"><span class="pop-rank">#1</span><span class="pop-title">眩晕霓虹</span><span class="pop-artist"> 甜心俱乐部</span></div>
+                <div class="pop-item" data-target="pop2"><span class="pop-rank">#2</span><span class="pop-title">晚风告白</span><span class="pop-artist"> 林栖</span></div>
+                <div class="pop-item" data-target="pop3"><span class="pop-rank">#3</span><span class="pop-title">城市冲浪</span><span class="pop-artist"> 海皮威尔</span></div>
+                <div class="pop-item" data-target="pop4"><span class="pop-rank">#4</span><span class="pop-title">指纹</span><span class="pop-artist"> 陈壹千</span></div>
+                <div class="pop-item" data-target="pop5"><span class="pop-rank">#5</span><span class="pop-title">Lucky Lucky</span><span class="pop-artist"> 红白色</span></div>
+                <div class="pop-item" data-target="pop6"><span class="pop-rank">#6</span><span class="pop-title">海边旅馆</span><span class="pop-artist"> 沈以诚</span></div>
+            </div>
+            <p style="margin-top:1rem;">✨ 点击歌曲试听（切换下方详情）</p>
+        </div>
+        <!-- 电台直播间 (模拟直播互动) -->
+        <div class="radio-studio">
+            <h2>📻 流行乐直播间</h2>
+            <div class="live-indicator"><span class="live-dot"></span> <span>ON AIR · 现在直播</span></div>
+            <div class="radio-display" id="radioDisplay">
+                🎙️ 主持人：欢迎收听「流行现场」，当前播放：眩晕霓虹 —— 甜心俱乐部
+            </div>
+            <div class="radio-controls">
+                <button class="freq-btn" data-freq="pop">🎵 切到流行榜</button>
+                <button class="freq-btn" data-freq="classic">🎸 经典金曲</button>
+                <button class="freq-btn" data-freq="indie">🎧 独立推荐</button>
+            </div>
+            <button class="call-btn" id="callButton">📞 点歌互动 (模拟热线)</button>
+        </div>
+    </div>
+
+    <!-- 听众互动区域 (评论+点赞) -->
+    <div class="interaction-row">
+        <!-- 评论模块 -->
+        <div class="comment-box">
+            <h3>💬 听众留言板</h3>
+            <div class="comment-list" id="commentList">
+                <div class="comment-item"><span>🎸 峡谷夜猫：峭壁之光太震撼了！</span></div>
+                <div class="comment-item"><span>🌊 深海鱼：鲸语夜航适合一个人听。</span></div>
+                <div class="comment-item"><span>🎤 JazzLover：爵士单身夜yyds</span></div>
+            </div>
+            <div class="comment-input-area">
+                <input type="text" id="commentInput" placeholder="写下你的乐评...">
+                <button id="sendComment">发送</button>
+            </div>
+        </div>
+        <!-- 点赞互动模块 -->
+        <div class="like-area">
+            <div style="font-size:1.8rem;">❤️ 总喜爱值</div>
+            <div class="like-count" id="likeCount">128</div>
+            <button class="like-btn" id="likeBtn">👍 点赞</button>
+        </div>
+    </div>
+
+    <!-- 详情卡片区 (联动所有点击) -->
+    <div class="detail-panel" id="dynamicDetailPanel">
+        <h2 id="detailTitle">🎵 此刻聆听 · 峭壁之光</h2>
+        <div class="detail-grid">
+            <div class="detail-image"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23eedacf'/%3E%3Ccircle cx='30' cy='40' r='10' fill='%23cf907b'/%3E%3Ccircle cx='70' cy='60' r='14' fill='%239f6f59'/%3E%3Cpath d='M20 80 L45 30 L70 80 Z' fill='%23ad7a61' opacity='0.8'/%3E%3Ctext x='18' y='88' font-size='12' fill='%235e3e2e' font-family='monospace'%3E⚡ECHO⚡%3C/text%3E%3C/svg%3E" alt="封面" id="detailImage"></div>
+            <div class="detail-text" id="detailText"><p>⛰️ <strong>《峭壁之光》</strong> 是The Echoes 2021年在冰岛录音的概念专辑。点击任意链接/卡片探索更多。</p></div>
+        </div>
+    </div>
+
+    <!-- 邮箱 -->
+    <div class="email-footer">
+        <div class="contact-note">🎧 联络馆长</div>
+        <div class="email-address">2683209931@qq.com</div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        // 详情数据（原有6个 + 新增流行乐6个，用pop1-6标识）
+        const detailsData = {
+            modal1: { title: '🎵 峭壁之光 · 迷幻民谣', imgSvg: `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' fill='%233d2c23'/%3E%3Ccircle cx='60' cy='40' r='22' fill='%23e0b589'/%3E%3Cpath d='M20 95 L60 50 L100 95' fill='%2398725b'/%3E%3Cpolygon points='50,80 70,80 60,100' fill='%23ca9e7c'/%3E%3Ctext x='30' y='30' fill='%23fadac8' font-size='14'%3E⛰️LIGHT%3C/text%3E%3C/svg%3E`, description: `⛰️ <strong>《峭壁之光》</strong> 吉他回响与空旷人声。乐队三人带着老式录音机爬上多佛悬崖，录下海鸟与风琴。` },
+            modal2: { title: '🌊 鲸语夜航 · 氛围深海', imgSvg: `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' fill='%231a3342'/%3E%3Ccircle cx='80' cy='50' r='28' fill='%23368593'/%3E%3Cpath d='M20 90 Q 45 70 70 90 T 110 80' stroke='%23aaccdd' stroke-width='4' fill='none' /%3E%3Ctext x='25' y='40' fill='%23b5d6dd' font-size='16'%3E🐋%3C/text%3E%3C/svg%3E`, description: `🌊 <strong>《鲸语夜航》</strong> 水底录音与合成器交织。Deep Sommer 潜入挪威峡湾录制鲸歌。` },
+            modal3: { title: '🎻 钢琴独白1988', imgSvg: `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' fill='%232c211c'/%3E%3Crect x='35' y='60' width='50' height='25' fill='%2344332b' /%3E%3Crect x='40' y='40' width='8' height='20' fill='%23c6a28b' /%3E%3Crect x='60' y='40' width='8' height='20' fill='%23c6a28b' /%3E%3Ctext x='22' y='95' fill='%23e6cfbc' font-size='18'%3E🎹 1988%3C/text%3E%3C/svg%3E`, description: `🎻 <strong>《钢琴独白1988》</strong> 美籍华裔钢琴家Murray张在布拉格一台走音钢琴上录制的即兴作品。` },
+            modal4: { title: '📀 合成器浪潮', imgSvg: `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' fill='%23223147'/%3E%3Ccircle cx='40' cy='50' r='15' fill='%23ff99cc' /%3E%3Ccircle cx='90' cy='70' r='15' fill='%2366ccff' /%3E%3Cpolygon points='30,100 60,20 90,100' fill='%23c27e6b' opacity='0.7'/%3E%3Ctext x='25' y='30' fill='%23f0e6d2' font-size='12'%3ERETRO%3C/text%3E%3C/svg%3E`, description: `📀 <strong>《合成器浪潮》</strong> Neon Arcade 用古董合成器Roland Juno-60 创作的复古电子。` },
+            modal5: { title: '🥁 东西亚节奏', imgSvg: `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' fill='%239c6b50'/%3E%3Ccircle cx='70' cy='50' r='30' fill='%23ad7e4c' /%3E%3Cpath d='M30 90 L60 35 L90 90' fill='%23c7a252' /%3E%3Ctext x='30' y='80' fill='%23331e12' font-size='20'%3E🌏%3C/text%3E%3C/svg%3E`, description: `🥁 <strong>《东西亚节奏》</strong> Rara漂流团体深入尼泊尔与云南采集民族打击乐。` },
+            modal6: { title: '🎤 爵士单身夜', imgSvg: `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' fill='%233b281f'/%3E%3Ccircle cx='60' cy='55' r='25' fill='%23997766' /%3E%3Crect x='40' y='80' width='40' height='8' fill='%23bd8e6b' /%3E%3Ctext x='30' y='35' fill='%23f0c9b0' font-size='22'%3E🎙️%3C/text%3E%3C/svg%3E`, description: `🎤 <strong>《爵士单身夜》</strong> Ella棕榈在纽约地下酒吧的现场录音，烟嗓即兴。` },
+            // 流行乐补充数据 (pop1~pop6)
+            pop1: { title: '🎤 眩晕霓虹 · 甜心俱乐部', imgSvg: `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' fill='%23ee88aa'/%3E%3Ccircle cx='40' cy='40' r='22' fill='%23ffccdd'/%3E%3Ctext x='30' y='90' fill='white' font-size='24'%3E🌈%3C/text%3E%3C/svg%3E`, description: `🎤 <strong>《眩晕霓虹》</strong> 甜心俱乐部首支破亿单曲，合成器流行曲风，歌词描绘都市夜晚的迷离。` },
+            pop2: { title: '🌙 晚风告白 · 林栖', imgSvg: `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' fill='%23345a7a'/%3E%3Ccircle cx='60' cy='50' r='30' fill='%23aaccff' /%3E%3Ctext x='35' y='90' fill='%23eef' font-size='22'%3E🌙%3C/text%3E%3C/svg%3E`, description: `🌙 <strong>《晚风告白》</strong> 独立流行才子林栖，吉他伴唱，夏夜晚风的最佳背景音乐。` },
+            pop3: { title: '🏄 城市冲浪 · 海皮威尔', imgSvg: `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' fill='%23447799'/%3E%3Cpath d='M20 80 L100 40' stroke='%23ffcc66' stroke-width='8' /%3E%3Ctext x='25' y='90' fill='white' font-size='26'%3E🌊%3C/text%3E%3C/svg%3E`, description: `🏄 <strong>《城市冲浪》</strong> 海皮威尔融合放克与流行，节奏明快，适合驾车时播放。` },
+            pop4: { title: '🖐️ 指纹 · 陈壹千', imgSvg: `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' fill='%23995566'/%3E%3Ccircle cx='60' cy='60' r='22' fill='%23ddaa99' /%3E%3Ctext x='30' y='90' fill='%23ffe' font-size='24'%3E✋%3C/text%3E%3C/svg%3E`, description: `🖐️ <strong>《指纹》</strong> 陈壹千深情演绎，流行抒情曲，唱出记忆中的痕迹。` },
+            pop5: { title: '🍀 Lucky Lucky · 红白色', imgSvg: `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' fill='%2388aa55'/%3E%3Ctext x='25' y='70' fill='%23ffffff' font-size='50'%3E🍀%3C/text%3E%3C/svg%3E`, description: `🍀 <strong>《Lucky Lucky》</strong> 红白色乐队的清新流行曲，旋律轻快，充满幸运感。` },
+            pop6: { title: '🏖️ 海边旅馆 · 沈以诚', imgSvg: `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' fill='%23aaccbb'/%3E%3Cpath d='M20 80 L100 60' stroke='%23996655' stroke-width='10' /%3E%3Ctext x='30' y='50' fill='%23222222' font-size='28'%3E🏨%3C/text%3E%3C/svg%3E`, description: `🏖️ <strong>《海边旅馆》</strong> 沈以诚民谣流行作品，讲述海边小镇的故事，温暖治愈。` }
+        };
+
+        // 更新详情面板
+        function updateDetail(modalId) {
+            if (!modalId || !detailsData[modalId]) return;
+            const d = detailsData[modalId];
+            document.getElementById('detailTitle').innerText = d.title;
+            document.getElementById('detailImage').src = d.imgSvg;
+            document.getElementById('detailText').innerHTML = `<p>${d.description}</p><span style="display:block; margin-top:1rem;">↳ 来自 ${modalId}</span>`;
+            // 联动电台显示
+            document.getElementById('radioDisplay').innerHTML = `🎙️ 主持人：现在播放 —— ${d.title} (点击频率可切换频道)`;
+        }
+
+        // 监听所有可点击元素: 表格链接、流行榜项
+        document.querySelectorAll('.track-link').forEach(link => {
+            link.addEventListener('click', (e) => { e.preventDefault(); updateDetail(link.dataset.target); });
+        });
+        document.querySelectorAll('.pop-item').forEach(item => {
+            item.addEventListener('click', () => updateDetail(item.dataset.target));
+        });
+
+        // 电台频率切换 (模拟内容)
+        document.querySelectorAll('.freq-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const freq = btn.dataset.freq;
+                if (freq === 'pop') document.getElementById('radioDisplay').innerHTML = '🎵 流行榜频道 · 现在播放: 眩晕霓虹 - 甜心俱乐部  (热线: 400-8827)';
+                else if (freq === 'classic') document.getElementById('radioDisplay').innerHTML = '🎸 经典金曲 · 播放: 波西米亚狂想曲 - Queen  (听众点播)';
+                else if (freq === 'indie') document.getElementById('radioDisplay').innerHTML = '🎧 独立推荐 · 正在放: 山海 - 草东没有派对  (独立之声)';
+            });
+        });
+
+        // 模拟热线点歌互动
+        document.getElementById('callButton').addEventListener('click', () => {
+            alert('📞 热线接入中…… 您点播的歌曲已加入播放列表 (模拟功能)');
+            document.getElementById('radioDisplay').innerHTML = '🎉 听众热线点歌成功！即将播放: 随机流行曲～';
+        });
+
+        // 评论区互动
+        const commentList = document.getElementById('commentList');
+        const commentInput = document.getElementById('commentInput');
+        document.getElementById('sendComment').addEventListener('click', () => {
+            const txt = commentInput.value.trim();
+            if (txt) {
+                const newComment = document.createElement('div');
+                newComment.className = 'comment-item';
+                newComment.innerHTML = `<span>🎧 路人：${txt}</span>`;
+                commentList.appendChild(newComment);
+                commentInput.value = '';
+                commentList.scrollTop = commentList.scrollHeight;
+            }
+        });
+
+        // 点赞模块
+        let like = 128;
+        const likeSpan = document.getElementById('likeCount');
+        document.getElementById('likeBtn').addEventListener('click', () => {
+            like += 1;
+            likeSpan.innerText = like;
+        });
+
+        // 随机专辑 (从所有modal和pop里随机选)
+        const allKeys = ['modal1','modal2','modal3','modal4','modal5','modal6','pop1','pop2','pop3','pop4','pop5','pop6'];
+        document.getElementById('randomAlbumBtn').addEventListener('click', () => {
+            const rand = allKeys[Math.floor(Math.random() * allKeys.length)];
+            updateDetail(rand);
+        });
+
+        // 深色模式
+        const darkBtn = document.getElementById('darkModeToggle');
+        darkBtn.addEventListener('click', () => {
+            document.body.classList.toggle('dark');
+            darkBtn.innerText = document.body.classList.contains('dark') ? '☀️ 浅色模式' : '🌙 深色模式';
+        });
+
+        // 初始
+        updateDetail('modal1');
+    })();
+</script>
+</body>
+</html>
